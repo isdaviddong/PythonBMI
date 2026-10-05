@@ -10,7 +10,9 @@ class BmiAppTests(unittest.TestCase):
     def test_initial_page(self):
         response = self.client.get("/")
         self.assertEqual(response.status_code, 200)
-        self.assertIn("計算你的 BMI", response.get_data(as_text=True))
+        page = response.get_data(as_text=True)
+        self.assertIn("了解自己的<br><em>健康狀況。</em>", page)
+        self.assertIn("計算你的 BMI", page)
 
     def test_calculation_and_advice(self):
         response = self.client.post("/", data={"height": "170", "weight": "65"})
