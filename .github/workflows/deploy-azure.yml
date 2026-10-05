@@ -25,7 +25,7 @@ jobs:
   deploy:
     runs-on: windows-latest
     env:
-      AZURE_WEBAPP_NAME: NTUSTweb00
+      AZURE_WEBAPP_NAME: ${{ vars.AZURE_WEBAPP_NAME }}
       AZURE_RESOURCE_GROUP: NTUSTlab2026
       PYTHON_RUNTIME_VERSION: 3.14.8
     steps:
