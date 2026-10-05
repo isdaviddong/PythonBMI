@@ -25,14 +25,12 @@ BMI = 體重（公斤）÷ 身高（公尺）²。分類採臺灣成人體位參
 
 ## 部署到 Azure Web App
 
-`.github/workflows/deploy-azure.yml` 在 `main` 分支的應用程式、測試或 workflow 異動時執行，也可以從 GitHub Actions 手動觸發。流程會先執行測試，再透過 Azure App Service 的建置自動化安裝 `requirements.txt`，以 Gunicorn 啟動 Flask。
+`.github/workflows/deploy-azure.yml` 在 `main` 分支的應用程式、測試或 workflow 異動時執行，也可以從 GitHub Actions 手動觸發。流程會在 Windows runner 上執行測試、下載官方 Python 3.14.8 可嵌入版本，將 Python 與相依套件一起部署到 `NTUSTweb00`（資源群組 `NTUSTlab2026`）。站點透過 `web.config` 的 IIS HttpPlatformHandler 啟動 `serve.py`，以 Waitress 提供 Flask 服務。
 
-部署前請準備 **Linux** Azure Web App，並使用 **Python 3.12** 執行環境。Azure App Service 不再支援在 Windows Web App 上直接執行 Python；現有的 `NTUSTweb00` 是 Windows Web App，不能作為此流程的部署目標。
+此方法使用**隨部署包提供的 Python**，不依賴 Windows App Service 內建 Python 執行環境；HttpPlatformHandler 必須在目標站點可用。`NTUSTweb00` 目前是 Windows Web App，部署時會確認作業系統。
 
-在 GitHub 儲存庫 **Settings → Secrets and variables → Actions** 設定：
+在 GitHub 儲存庫 **Settings → Secrets and variables → Actions** 確認：
 
 - Repository secret `AZURE_CREDENTIALS`：Azure 服務主體的 `clientId`、`clientSecret`、`subscriptionId`、`tenantId` 組成的 JSON。此 Secret 已設定，不要把內容寫進程式碼。
-- Repository variable `AZURE_WEBAPP_NAME`：新 Linux Web App 的名稱。
-- Repository variable `AZURE_RESOURCE_GROUP`：該 Web App 所在資源群組。
 
-請確認該服務主體對新的 Linux Web App 具有部署及更新應用程式設定的權限（例如該站點的 **Website Contributor**）。設定完成後，可由 GitHub Actions 手動執行一次工作流程，或推送符合上述條件的 `main` 分支異動。未填變數或目標不是 Linux Web App 時，流程會在部署前明確失敗。
+請確認該服務主體對 `NTUSTweb00` 具有部署權限（例如該站點的 **Website Contributor**）。推送符合上述條件的 `main` 分支異動，或從 GitHub Actions 手動執行工作流程即可部署。
